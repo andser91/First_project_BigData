@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import sys
 from collections import defaultdict
@@ -17,10 +18,10 @@ for line in sys.stdin:
 
 for key,list_value in historical.items():
 	for value in list_value:
-		#ticker = key
+		ticker = key
 		close = value[0]
 		volume = value[1]
 		date = value[2]
 		sector = historical_corto[key]
 		if sector != "N/A":
-			print('%s\t%s\t%s\t%s' % (sector, close, volume, date))
+			print('%s\t%s\t%s\t%s\t%s' % (sector, close, volume, date,ticker))
