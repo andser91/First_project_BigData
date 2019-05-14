@@ -19,13 +19,8 @@ for line in sys.stdin:
         volume = "@"
         date = "@"
 
-        #SECOND FILE
-        #exchange = "@"
-        #name = "@"
         sector = "@"
-        #industry = "@"
 
-        #IF LEN == 8 IS HISTORICAL WITH PRICES
         if len(line) == 8:
             if 2004 <= int(line[7][:4]) <= 2018:
                 ticker = line[0]
@@ -35,8 +30,6 @@ for line in sys.stdin:
                 #highThe = line[5]
                 volume = line[6]
                 date = line[7]
-
-
         else:
             correct_line = []
             i = 0
