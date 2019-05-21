@@ -3,7 +3,6 @@ from pyspark import SparkContext
 import pyspark
 from itertools import islice
 import datetime
-import os
 
 def correct_parsing(line):
 	correct_line = []
@@ -28,22 +27,21 @@ def correct_parsing(line):
 
 
 def parse_data(stringa):
-    year, month, day = stringa.split("-")
-    return datetime.datetime(int(year), int(month), int(day))
+	year, month, day = stringa.split("-")
+	return datetime.datetime(int(year), int(month), int(day))
 
-os.environ["PYSPARK_DRIVER_PYTHON"] = "ipython3"
-os.environ["PYSPARK_PYTHON"]="/usr/local/bin/python3"
+
 conf = pyspark.SparkConf().setAll([('spark.executor.memory','8g'),('spark.driver.memory','8g'),('spark.driver.maxResultSize','3g')])
 sc = SparkContext("local", "PySpark Word Count Exmaple", conf=conf)
 
 
-stocks = sc.textFile("../historical_stocks.csv") \
+stocks = sc.textFile("historical_stocks.csv") \
     .map(lambda line: correct_parsing(line.split(",")))\
 	.mapPartitionsWithIndex(lambda idx, it: islice(it, 1, None) if idx == 0 else it)\
 	.filter(lambda line: line[1]!="N/A")\
 	.map(lambda line: (line[0],line[1]))
 
-with_prices = sc.textFile("../prova.csv") \
+with_prices = sc.textFile("prova.csv") \
     .map(lambda line: line.split(",")) \
     .mapPartitionsWithIndex(lambda idx, it: islice(it, 1, None) if idx == 0 else it)\
     .filter(lambda line: int(line[7][:4]) >= 2004) \
@@ -55,24 +53,15 @@ sum_volume_ticker_close = with_prices.map(lambda line:((line[0],line[1][2].year)
 
 
 join_table = sum_volume_ticker_close.join(stocks).map(lambda a : ((a[1][1],a[1][0][0]), [a[1][0][1], a[1][0][2]]))
-
 join_table_total_volume_close = join_table.reduceByKey(lambda a,b : [a[0]+b[0],a[1]+b[1]])\
 	.map(lambda line:(line[0],[line[1][0]/365,line[1][1]]))
-
-
 ticker_year = with_prices.map(lambda line:((line[0],line[1][2].year),[line[1][0],line[1][2]]))
-
 ticker_year_max_date = ticker_year.reduceByKey(lambda a,b : a if a[1]>=b[1] else b)
 ticker_year_min_date = ticker_year.reduceByKey(lambda a,b : a if a[1]<=b[1] else b)
-
 annual_ticker_percentage = ticker_year_max_date.join(ticker_year_min_date).map(lambda a : (a[0][0],[a[0][1],(a[1][0][0]-a[1][1][0])/a[1][1][0]]))
-
 annual_sector_percentage = annual_ticker_percentage.join(stocks).map(lambda a:((a[1][1],a[1][0][0]),a[1][0][1]))\
 	.reduceByKey(lambda a,b:a+b)
-
-
 final_join = annual_sector_percentage.join(join_table_total_volume_close)\
 	.map(lambda line:(line[0],[line[1][0]*100,line[1][1][0],line[1][1][1]])).sortBy(lambda a : a[0])
-
 
 final_join.saveAsTextFile("output")
