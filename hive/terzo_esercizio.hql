@@ -32,6 +32,4 @@ create table percentages_sector as select a.name, p16, p17, p18, sector from per
 
 create table result_duplicates as select distinct a.name as first, b.name as second, a.p16, a.p17, a.p18 from percentages_sector a join percentages_sector b on (a.p16 = b.p16 and a.p17 = b.p17 and a.p18 = b.p18) where a.sector != b.sector and a.name != b.name;
 
-create result3 as select distinct first,second, p16, p17, p18 from result3 r where r.first > r.second or not exists(select * from result3 r2 where r2.first = r.second and r2.second = r.first)"
-
-create final3 as select distinct first,second from result3 r where r.first > r.second or not exists(select * from result3 r2 where r2.first = r.second and r2.second = r.first)"
+create table result3 as select distinct first,second, p16, p17, p18 from result_duplicates r where r.first > r.second or not exists(select * from result_duplicates r2 where r2.first = r.second and r2.second = r.first);
