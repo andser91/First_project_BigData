@@ -23,7 +23,7 @@ for key, list_value in dictionary.items():
         if (data >= data_massima):
             data_massima = data
             valore_data_max = el[0]
-    lista.append((key, (valore_data_max - valore_data_min)/valore_data_min, list_value[0][1], list_value[0][2], list_value[0][3]))
+    lista.append((key, ((valore_data_max - valore_data_min)/valore_data_min)*100, list_value[0][1], list_value[0][2], list_value[0][3]))
 
 
 def sortSecond(val):

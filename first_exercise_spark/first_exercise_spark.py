@@ -3,7 +3,9 @@ from pyspark import SparkContext
 import pyspark
 from itertools import islice
 import datetime
-
+import os
+os.environ["PYSPARK_DRIVER_PYTHON"] = "ipython3"
+os.environ["PYSPARK_PYTHON"]="/usr/local/bin/python3"
 conf = pyspark.SparkConf().setAll([('spark.executor.memory','8g'),('spark.driver.memory','8g'),('spark.driver.maxResultSize','3g')])
 sc = SparkContext("local", "PySpark Word Count Exmaple", conf=conf)
 
@@ -11,7 +13,7 @@ def parse_data(stringa):
     year, month, day = stringa.split("-")
     return datetime.datetime(int(year), int(month), int(day))
 
-words = sc.textFile("prova.csv") \
+words = sc.textFile("../prova.csv") \
     .map(lambda line: line.split(",")) \
     .mapPartitionsWithIndex(lambda idx, it: islice(it, 1, None) if idx == 0 else it)\
     .filter(lambda line: int(line[7][:4]) >= 1998) \
