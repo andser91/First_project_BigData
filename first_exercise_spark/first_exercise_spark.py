@@ -30,6 +30,5 @@ date_min = words.reduceByKey(lambda a,b : a if a[4]<=b[4] else b).map(lambda lin
 percentuale = date_min.join(date_max).map(lambda a : (a[0], (a[1][1] - a[1][0]) /a[1][0]*100))
 result = percentuale.join(min_max).map(lambda a : (a[0], a[1][0], a[1][1][0], a[1][1][1], a[1][1][2])).sortBy(lambda a : a[1], ascending=False).take(10)
 
-for i in result:
-    print(i)
+sc.parallelize(result).saveAsTextFile("output")
 

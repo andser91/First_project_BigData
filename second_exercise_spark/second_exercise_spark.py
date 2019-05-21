@@ -73,5 +73,6 @@ annual_sector_percentage = annual_ticker_percentage.join(stocks).map(lambda a:((
 
 final_join = annual_sector_percentage.join(join_table_total_volume_close)\
 	.map(lambda line:(line[0],[line[1][0]*100,line[1][1][0],line[1][1][1]])).sortBy(lambda a : a[0])
-for i in final_join.collect():
-	print (i)
+
+
+final_join.saveAsTextFile("output")
